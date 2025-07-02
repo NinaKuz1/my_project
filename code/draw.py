@@ -98,7 +98,7 @@ def plot_time_space_diagram(junctions: List[Junction]):
     #кружочки
     for junction in junctions:
         ax.plot(0.5, junction.y, 'o', markersize=8, color="#0fd0eed2", clip_on=False)
-        #переносла подпись над кружочками
+        #перенесла подпись над кружочками
         ax.text(0.5, junction.y + 15, f" tls#{junction.id}", 
                 ha='center', va='bottom', fontsize=7)
     
