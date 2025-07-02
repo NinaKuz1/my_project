@@ -81,18 +81,6 @@ class Junction:
         #
         return ans
     
-    def get_signal_at(self, time: int) -> Signal:
-        """Возвращает сигнал, активный в заданный момент времени."""
-        cycle_time = time % self.full_cycle_seconds
-        current_time = 0
-        
-        for phase in self.full_cycle:
-            for signal in phase.signals:
-                if current_time <= cycle_time < current_time + signal.duration_seconds:
-                    return signal
-                current_time += signal.duration_seconds
-        
-        return self.full_cycle[0].signals[0]  # fallback
 
 
     def get_signal_at(self, time: int) -> Signal:

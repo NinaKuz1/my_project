@@ -36,9 +36,12 @@ def main():
             ]
         )
     ]
-    
+
+
+#вывод длительности цикла 
     for junction in junctions:
         print("Длительность цикла", junction.full_cycle_seconds)
+
 
     plt = plot_time_space_diagram(junctions)
     plt.show()
