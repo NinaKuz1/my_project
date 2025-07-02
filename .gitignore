@@ -16,3 +16,4 @@
 *.xdv
 *.bcf
 *.run.xml
+*.pyc
