@@ -1,3 +1,4 @@
+from green_wave import GreenWave, ThroughGreenWave
 import matplotlib.pyplot as plt
 from junction import Junction
 from typing import List
@@ -103,4 +104,64 @@ def plot_time_space_diagram(junctions: List[Junction]):
                 ha='center', va='bottom', fontsize=7)
     
     plt.tight_layout()
+    return plt
+
+def plot_green_waves(plt: plt, junctions: List[Junction], green_waves: list[list[GreenWave]]) -> plt:
+    ax = plt.gca()
+    wave_color = "#57B844"
+    alpha = 0.3
+    # Для каждого сегмента между перекрёстками
+    for segment_idx, segment_waves in enumerate(green_waves):
+        if segment_idx >= len(junctions) - 1:
+            # Защита от несоответствия количества сегментов и перекрёстков
+            break
+        
+        j1 = junctions[segment_idx]
+        j2 = junctions[segment_idx + 1]
+        y1 = j1.y
+        y2 = j2.y
+        # Для каждой зелёной волны в сегменте
+        for wave in segment_waves:
+            start_j1, end_j1 = wave.interval_j1.start, wave.interval_j1.end
+            start_j2, end_j2 = wave.interval_j2.start, wave.interval_j2.end
+            polygon = [
+                (start_j1, y1),
+                (start_j2, y2),
+                (end_j2, y2),
+                (end_j1, y1),
+                (start_j1, y1)
+            ]
+            xs, ys = zip(*polygon)
+            ax.fill(
+                xs, ys,
+                color=wave_color,
+                alpha=alpha,
+                edgecolor=wave_color,
+                linewidth=0.5,
+                zorder=2
+            )
+    return plt
+
+
+
+
+
+
+def plot_through_wave_bands(plt: plt, junctions: List[Junction], through_waves: List[ThroughGreenWave]) -> plt:
+    ax = plt.gca()
+    wave_color = "#541FE4"
+    alpha = 0.2
+    for wave in through_waves:
+        starts = []
+        ends = []
+        for j, interval in enumerate(wave.intervals):
+            junction = junctions[j]
+            y = junction.y
+            starts.append((interval.start, y))
+            ends.append((interval.end, y))
+        ends.reverse()
+
+        polygons = starts + ends
+        xs, ys = zip(*polygons)
+        ax.fill(xs, ys, color=wave_color, alpha=alpha, edgecolor=wave_color, linewidth=0.5, zorder=2)
     return plt

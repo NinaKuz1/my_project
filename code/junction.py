@@ -46,9 +46,9 @@ class GreenInterval:
         self.start_seconds = start_seconds
         self.end_seconds = end_seconds
     def __str__(self):
-        return "GreenInterval{{phase_idx: {}, start: {}, end: {}}}".format(self.phase_idx, self.start, self.end)
+        return "GreenInterval{{phase_idx: {}, start: {}, end: {}}}".format(self.phase_idx, self.start_seconds, self.end_seconds)
     def __repr__(self):
-        return "GreenInterval{{phase_idx: {}, start: {}, end: {}}}".format(self.phase_idx, self.start, self.end)
+        return "GreenInterval{{phase_idx: {}, start: {}, end: {}}}".format(self.phase_idx, self.start_seconds, self.end_seconds)
     
 class Junction:
     id: int
@@ -64,24 +64,54 @@ class Junction:
         self.cycle_offset_seconds = 0
         self.x = _x
         self.y = _y
-    
     def set_offset(self, offset_seconds: int):
         self.cycle_offset_seconds = offset_seconds
     def get_offset(self) -> int:
         return self.cycle_offset_seconds
     def __str__(self):
-        return "Junction{{id: {}, name: {}, x: {}, y: {}, full_cycle_duration: {}}}".format(self.id, self.name, self.x, self.y, self.full_cycle_duration)
+        return "Junction{{id: {}, name: {}, x: {}, y: {}, full_cycle_seconds: {}}}".format(self.id, self.name, self.x, self.y, self.full_cycle_seconds)
     def __repr__(self):
-        return "Junction{{id: {}, name: {}, x: {}, y: {}, full_cycle_duration: {}}}".format(self.id, self.name, self.x, self.y, self.full_cycle_duration)
+        return "Junction{{id: {}, name: {}, x: {}, y: {}, full_cycle_seconds: {}}}".format(self.id, self.name, self.x, self.y, self.full_cycle_seconds)
     
+    """
+    Возвращает список зеленых интервалов для светофора.
+    """
     def get_green_intervals(self) -> List[GreenInterval]:
-        ans = []
-        #
-        # Реализовать поиск зеленых интервалов для светофора
-        #
-        return ans
-    
+        # 1. Пройти по всем фазам
+        # 2. Анализ всех сигнал в фазах по порядку
+        # 3. Для зелёных сигналов определить начало и конец интервала
+        # 4. Обработать переходу через границы цикла
 
+        intervals = []
+        # Защита от отсутствия фаз или нулевой длительности цикла
+        cycle_duration = self.full_cycle_seconds
+        if cycle_duration == 0:
+            return intervals
+        
+        current_time = 0
+        # Итерируемся по всем фазам
+        for phase_idx, phase in enumerate(self.full_cycle):
+            # Устанавливаем время окончания фазы
+            phase_end = current_time + phase.total_seconds
+            # Устанавливаем время начала горения зеленого сигнала
+            signal_start = current_time
+            for signal in phase.signals:
+                # Игнорируем запрещающие сигналы
+                if signal.color == Color.GREEN:
+                    # Время старта сигнала
+                    start = signal_start
+                    # Время конца сигнала
+                    end = signal_start + signal.duration_seconds
+                    if end == cycle_duration:
+                        # Если интервал заканчивается на границе цикла, то не нужно обрезать его
+                        intervals.append(GreenInterval(phase_idx, start % cycle_duration, end))
+                    else:
+                        intervals.append(GreenInterval(phase_idx, start % cycle_duration, end % cycle_duration))
+                # Инкрементируем время начала горения следующего сигнала
+                signal_start += signal.duration_seconds
+            # Переход к следующей фазе
+            current_time = phase_end
+        return intervals
 
     def get_signal_at(self, time: int) -> Signal:
         # Возвращает сигнал, который будет активен в заданный момент времени.
