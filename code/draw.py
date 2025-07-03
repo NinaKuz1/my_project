@@ -1,13 +1,13 @@
-from green_wave import GreenWave, ThroughGreenWave
 import matplotlib.pyplot as plt
 from junction import Junction
 from typing import List
+from green_wave import GreenWave, ThroughGreenWave
 from junction import Color
-from matplotlib.patches import Patch
 
-dpi = 150 
-plt.rcParams['figure.dpi'] = dpi 
-plt.rcParams["figure.figsize"] = (10, 6)
+dpi = 150
+plt.rcParams['figure.dpi'] = dpi  
+plt.rcParams["figure.figsize"] = (12, 9) # Дюймы
+plt.ioff()
 
 def plot_time_space_diagram(junctions: List[Junction]):
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -15,7 +15,7 @@ def plot_time_space_diagram(junctions: List[Junction]):
     # настройка оформления осей и заголовков
     # по х
     ax.set_xlabel("t, секунды", fontsize=10)
-    #аналигично ток для y
+     #аналигично ток для y
     ax.set_ylabel("светофорные объекты, метры", fontsize=10)
     
     # подготовка данных для оси у
@@ -30,10 +30,10 @@ def plot_time_space_diagram(junctions: List[Junction]):
     y_labels.extend([f"\n{pos}" for pos in additional_positions])
     
     ax.set_yticks(y_positions)
-    ax.set_yticklabels(y_labels, fontsize=8)
+    ax.set_yticklabels(y_labels, fontsize=6.5)
     ax.grid(True, linestyle='--', alpha=0.1)
 
-    # максимальное время отображения на графике в секах
+   # максимальное время отображения на графике в секах
     max_time = 85
     
     # сопоставление цветов сигналов с цветами на графике(сделала чуть ярче, чем в предыдущем)
@@ -43,65 +43,76 @@ def plot_time_space_diagram(junctions: List[Junction]):
         Color.YELLOW: "#ffff40"
     }
     
-    # обработка каждого перекрестка (светофора)
+   # обработка каждого перекрестка (светофора)
     for junction in junctions:
-    # начальное время для текущего светофора
-        current_time = junction.cycle_offset_seconds
-        signal_start = 0
-    # цикл продолжается пока не достигнем максимального времени    
-        while signal_start < max_time:
-    # вычисляем позицию в цикле светофора по моду 85 
-            cycle_pos = current_time % junction.full_cycle_seconds
-            accumulated_time = 0
-    # перебираем все фазы цикла светофора        
-            for phase in junction.full_cycle:
-    # перебираем все сигналы в текущей фазе
-                for signal in phase.signals:
-                    if accumulated_time <= cycle_pos < accumulated_time + signal.duration_seconds:
-                        start = signal_start
-    # убеждаемся, что не выходим за пределы max_time
-                        end = start + min(signal.duration_seconds, max_time - signal_start)
-     # рисуем горизонтальную полосу (сигнал светофора)                    
-                        ax.barh(
-                        # позиция по оси у
-                            y=junction.y,
-                            width=end - start,
-                            left=start,
-                        # высота полосы
-                            height=12, 
-                        # цвет сигнала
-                            color=color_map[signal.color],
-                            linewidth=0.5
-                        )
-                        
-                        signal_start = end
-                    # увеличиваем текущее время на длительность сигнала
-                        current_time += end - start
-                        break
-                    
-                    accumulated_time += signal.duration_seconds
+        #кружочки
+        ax.plot(
+            0.5,  # X-координата
+            junction.y,  # Y-координата
+            'o',  # Маркер
+            markersize=8,  # Размер
+            color="#0fd0eed2",  # Цвет
+            clip_on=False
+        )
+        
+        #переносла подпись над кружочками
+        ax.text(
+            0.5,  
+            junction.y + 15, 
+            f" tls#{junction.id}", 
+            ha='center',  
+            va='bottom',  
+            fontsize=7  
+        )
+        
+        # отрисовка лент времени
+        prev_cycle_x = junction.get_offset()
+        prev_cycle_y = junction.y
+        
+        for phases in junction.full_cycle:
+            for signal in phases.signals:
+                x_start = prev_cycle_x % junction.full_cycle_seconds
+                x_end = (prev_cycle_x + signal.duration_seconds) % junction.full_cycle_seconds
+                
+                if x_end < x_start:
+                     # рисуем горизонтальную полосу (сигнал светофора)  
+                    ax.barh(
+                        y=prev_cycle_y,
+                        width=junction.full_cycle_seconds - x_start,
+                        left=x_start,
+                        height=12,
+                        color=color_map[signal.color],
+                        linewidth=0.5
+                    )
+                    # вторая часть
+                    ax.barh(
+                        y=prev_cycle_y,
+                        width=x_end,
+                        left=0,
+                        height=12,
+                        color=color_map[signal.color],
+                        linewidth=0.5
+                    )
                 else:
-                    continue
-                break
+                    ax.barh(
+                        y=prev_cycle_y,
+                        width=x_end - x_start,
+                        left=x_start,
+                        height=12,
+                        color=color_map[signal.color],
+                        linewidth=0.5
+                    )
+                
+                prev_cycle_x += signal.duration_seconds
     
-
-# устанавливаем пределы осей с отступами 
-    
+    # установка пределов осей
     indentation = max_time * 0.04
     ax.set_xlim(-indentation, max_time + indentation)
-#чтобы было видно нормально нижнюю полосу
     ax.set_ylim(-20, 650)
     
-    # добавляем горизонтальные линии для каждого светофора
+    # добавление горизонтальных линий для каждого светофора
     for y in [j.y for j in junctions]:
         ax.axhline(y=y, color='gray', linestyle='--', alpha=0.5, linewidth=0.7)
-    
-    #кружочки
-    for junction in junctions:
-        ax.plot(0.5, junction.y, 'o', markersize=8, color="#0fd0eed2", clip_on=False)
-        #перенесла подпись над кружочками
-        ax.text(0.5, junction.y + 15, f" tls#{junction.id}", 
-                ha='center', va='bottom', fontsize=7)
     
     plt.tight_layout()
     return plt
@@ -141,11 +152,6 @@ def plot_green_waves(plt: plt, junctions: List[Junction], green_waves: list[list
                 zorder=2
             )
     return plt
-
-
-
-
-
 
 def plot_through_wave_bands(plt: plt, junctions: List[Junction], through_waves: List[ThroughGreenWave]) -> plt:
     ax = plt.gca()

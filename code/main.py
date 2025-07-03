@@ -1,7 +1,7 @@
 from junction import Junction, Phase, Signal, Color
 from draw import plot_time_space_diagram, plot_green_waves, plot_through_wave_bands
 from green_wave_finder import find_complete_green_waves
-
+from modeling import simulate_trip
 def main():
     junctions = [
         Junction(
@@ -38,21 +38,27 @@ def main():
         )
     ]
     
-    offsets = [0, -2, -1, -2]
+# Установка точных оффсетов
+    offsets = [0,74 ,71, -3]
     for i, offset in enumerate(offsets):
-        print(f"Junction {i} offset: {offset}")
         junctions[i].set_offset(offset)
 
     for junction in junctions:
         print(junction)
         print("Green intervals:", junction.get_green_intervals())
 
-    complete_green_waves = find_complete_green_waves(junctions, speed_kmh=40)
+    complete_green_waves = find_complete_green_waves(junctions, speed_kmh=50)
     for wave in complete_green_waves.green_waves:
         print("Complete green wave:", wave)
     for through_wave in complete_green_waves.chained_green_waves:
         print("Through green wave:", through_wave, "CRITERIA", through_wave.band_size)
+        # Добавляем вызов симуляции
+   # В файле main.py:
 
+    wait_times = simulate_trip(junctions, speed_kmh=50)
+
+    print("Время ожидания на перекрестках:", [f"{t:5f}" for t in wait_times])
+    
     plt = plot_time_space_diagram(junctions)
     plt = plot_green_waves(plt, junctions, complete_green_waves.green_waves)
     plt = plot_through_wave_bands(plt, junctions, complete_green_waves.chained_green_waves)
