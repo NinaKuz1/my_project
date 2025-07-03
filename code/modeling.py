@@ -2,7 +2,6 @@ from typing import List, Tuple, Optional
 from junction import Junction, Signal, Color
 
 def simulate_trip(junctions: List[Junction], speed_kmh: float) -> List[float]:
-    
     # переводит скорости из км в м
     speed_ms = speed_kmh / 3.6
     # инициализируем список времен ожидания нулями
@@ -12,10 +11,8 @@ def simulate_trip(junctions: List[Junction], speed_kmh: float) -> List[float]:
 
     # проходим по всем парам соседних перекрестков
     for i in range(len(junctions) - 1):
-    # текущий перекресток
-        j1 = junctions[i]  
-     # следующий перекресток
-        j2 = junctions[i + 1]
+        j1 = junctions[i]  # текущий перекресток
+        j2 = junctions[i + 1]  # следующий перекресток
         
         # вычисляем расстояние между перекрестками по координатам
         distance = ((j2.x - j1.x) ** 2 + (j2.y - j1.y) ** 2) ** 0.5
@@ -29,6 +26,7 @@ def simulate_trip(junctions: List[Junction], speed_kmh: float) -> List[float]:
         if signal_data is None:
             # если сигнал не найден, время ожидания 0
             wait_times[i + 1] = 0.0
+            print(f"Время ожидания на перекрестке от {i} до {i+1}: 0.0 секунд (сигнал не найден)")
             continue
 
         # распаковываем данные сигнала
@@ -38,6 +36,7 @@ def simulate_trip(junctions: List[Junction], speed_kmh: float) -> List[float]:
         if signal.color == Color.GREEN:
             # если зеленый - время ожидания 0
             wait_times[i + 1] = 0.0
+            print(f"Время ожидания на перекрестке от {i} до {i+1}: 0.0 секунд (зелёный сигнал)")
         else:
             # если красный - находим время начала следующего зеленого
             next_green_time = find_next_green_time(j2, arrival_time)
@@ -45,6 +44,7 @@ def simulate_trip(junctions: List[Junction], speed_kmh: float) -> List[float]:
             wait_time = next_green_time - arrival_time
             # сохраняем время ожидания (не меньше 0)
             wait_times[i + 1] = max(0, wait_time)
+            print(f"Время ожидания на перекрестке от {i} до {i+1}: {wait_time:.2f} секунд")
             # обновляем текущее время с учетом ожидания
             arrival_time += wait_time
 
@@ -84,7 +84,6 @@ def get_current_signal_with_offset(
 
 
 def find_next_green_time(junction: Junction, absolute_time: float) -> float:
-
     # вычисляем время в цикле светофора с учетом смещения
     cycle_time = (absolute_time - junction.cycle_offset_seconds) % junction.full_cycle_seconds
     next_green_in_cycle = None  # время следующего зеленого в цикле

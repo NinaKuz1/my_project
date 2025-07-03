@@ -39,7 +39,7 @@ def main():
     ]
     
 # Установка точных оффсетов
-    offsets = [0,74 ,71, 0]
+    offsets = [0, 76, 74, 2]
     for i, offset in enumerate(offsets):
         junctions[i].set_offset(offset)
 
@@ -47,7 +47,7 @@ def main():
         print(junction)
         print("Green intervals:", junction.get_green_intervals())
 
-    complete_green_waves = find_complete_green_waves(junctions, speed_kmh=50)
+    complete_green_waves = find_complete_green_waves(junctions, speed_kmh=40)
     for wave in complete_green_waves.green_waves:
         print("Complete green wave:", wave)
     for through_wave in complete_green_waves.chained_green_waves:
@@ -55,7 +55,7 @@ def main():
         # Добавляем вызов симуляции
    # В файле main.py:
 
-    wait_times = simulate_trip(junctions, speed_kmh=50)
+    wait_times = simulate_trip(junctions, speed_kmh=40)
 
     print("Время ожидания на перекрестках:", [f"{t:5f}" for t in wait_times])
     
