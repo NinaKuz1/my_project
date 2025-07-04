@@ -39,7 +39,7 @@ def main():
     ]
     
 # установка точных оффсетов
-    offsets = [0, -2 ,-4.5, 0]
+    offsets = [0, 0 ,0, 0]
     for i, offset in enumerate(offsets):
         junctions[i].set_offset(offset)
 
