@@ -38,8 +38,8 @@ def main():
         )
     ]
     
-# Установка точных оффсетов
-    offsets = [0, 76, 74, 2]
+# установка точных оффсетов
+    offsets = [0, -2 ,-4.5, 0]
     for i, offset in enumerate(offsets):
         junctions[i].set_offset(offset)
 
@@ -52,9 +52,7 @@ def main():
         print("Complete green wave:", wave)
     for through_wave in complete_green_waves.chained_green_waves:
         print("Through green wave:", through_wave, "CRITERIA", through_wave.band_size)
-        # Добавляем вызов симуляции
-   # В файле main.py:
-
+ 
     wait_times = simulate_trip(junctions, speed_kmh=40)
 
     print("Время ожидания на перекрестках:", [f"{t:5f}" for t in wait_times])
