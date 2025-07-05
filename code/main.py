@@ -1,7 +1,7 @@
 from junction import Junction, Phase, Signal, Color
 from draw import plot_time_space_diagram, plot_green_waves, plot_through_wave_bands
 from green_wave_finder import find_complete_green_waves
-from modeling import simulate_trip
+from modeling import simulate_trip, get_current_signal_with_offset, find_next_green_time
 def main():
     junctions = [
         Junction(
@@ -39,7 +39,7 @@ def main():
     ]
     
 # установка точных оффсетов
-    offsets = [0, 0 ,0, 0]
+    offsets = [0, -2 ,-4.5, 0]
     for i, offset in enumerate(offsets):
         junctions[i].set_offset(offset)
 

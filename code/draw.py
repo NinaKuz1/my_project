@@ -155,7 +155,7 @@ def plot_green_waves(plt: plt, junctions: List[Junction], green_waves: list[list
 
 def plot_through_wave_bands(plt: plt, junctions: List[Junction], through_waves: List[ThroughGreenWave]) -> plt:
     ax = plt.gca()
-    wave_color = "#541FE4"
+    wave_color = "#483E63"
     alpha = 0.2
     for wave in through_waves:
         starts = []
